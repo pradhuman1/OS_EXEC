@@ -33,11 +33,15 @@ void sighandler()
     printf("\nExiting....\n");
     exit(0);
 };
+void my_handler() {}
+
 int main(int argc, char *argv[])
 {
     printf("Server Program Started. Process id: %d\n", getpid());
     int curr = -1, i, servise;
     signal(SIGINT, sighandler);
+    signal(SIGUSR1, my_handler);
+
     int key;
     Q *infoItem;
     key = ftok("empty.txt", 11);
@@ -59,24 +63,24 @@ int main(int argc, char *argv[])
     while (1)
     {
         i = infoItem->in;
+
         if (curr < i)
         {
             curr++;
 
-            printf("SER : %d \n", (infoItem->queue[curr]).serviceNo);
-            printf("client : %d\n", (infoItem->queue[curr]).clientPID);
+            // printf("SER : %d \n", (infoItem->queue[curr]).serviceNo);
+            // printf("client : %d\n", (infoItem->queue[curr]).clientPID);
             // printf("H");
 
-            // printf("key : %d\n",(infoItem->queue[curr]).result_ref_key);
+            // printf("key : %d\n", (infoItem->queue[curr]).result_ref_key);
 
-            // for(int j=0;j<5;j++){
-            //     printf("%d\n",(infoItem->queue[curr]).neededArg[j]);
-
+            // for (int j = 0; j < 5; j++)
+            // {
+            //     printf("%d\n", (infoItem->queue[curr]).neededArg[j]);
             // }
             servise = (infoItem->queue[curr]).serviceNo;
-            // printf("%d",servise);
 
-            char buff1[10], buff2[10], buff3[10], buff4[10], buff5[10], buff6[10], buff7[10];
+            char buff1[40], buff2[40], buff3[40], buff4[40], buff5[40], buff6[40], buff7[40];
             sprintf(buff1, "\n%d", (infoItem->queue[curr]).neededArg[0]);
             sprintf(buff2, "\n%d", (infoItem->queue[curr]).neededArg[1]);
             sprintf(buff3, "\n%d", (infoItem->queue[curr]).neededArg[2]);
@@ -84,13 +88,10 @@ int main(int argc, char *argv[])
             sprintf(buff5, "\n%d", (infoItem->queue[curr]).neededArg[4]);
             sprintf(buff6, "\n%d", (infoItem->queue[curr]).clientPID);
             sprintf(buff7, "\n%d", (infoItem->queue[curr]).result_ref_key);
-            printf("BEFORE FORK");
-            printf("BEFORE FORK");
 
             int pid = fork();
             if (pid == 0)
             {
-                printf("FORKED");
                 if (servise == 2)
                 {
                     execl("./service2", "./service2", buff1, buff2, buff3, buff4, buff5, buff6, buff7, NULL);

@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         break;
         // kill(infoItem->serID, SIGUSR1);
     }
-    printf("Getting Result \n");
+    printf("Getting Result... \n");
     infoItem->in = curr;
     pause();
     printOutput(output, i);

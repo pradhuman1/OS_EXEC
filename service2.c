@@ -52,7 +52,7 @@ int multiply(int x, int res[], int res_size)
 int main(int argc, char *argv[])
 {
 	int ans, clientID, key1, shmid;
-
+	signal(SIGUSR1, my_handler);
 	key1 = atoi(argv[7]);
 	clientID = atoi(argv[6]);
 	printf("ClientID : %d\n", clientID);

@@ -39,6 +39,8 @@ int printOutput(result_buffer *item, int i)
 
 int main(int argc, char *argv[])
 {
+    again:
+
     printf("Client Program Started. Process id: %d\n", getpid());
     int choice, client, arr[5], shmid, i, curr;
     signal(SIGUSR1, my_handler);
@@ -130,6 +132,7 @@ int main(int argc, char *argv[])
     printOutput(output, i);
     shmdt(output);
     shmctl(shmid, IPC_RMID, NULL);
-    printf("Exiting ...\n");
+    printf("Exiting ...\n\n\n\n");
+    goto again;
     return 0;
 }

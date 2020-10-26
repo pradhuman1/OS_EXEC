@@ -4,8 +4,11 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <unistd.h>
-
+#include <sys/types.h> 
+#include <sys/wait.h>
+ 
 int shmid;
+pid_t pid;
 
 typedef struct
 {
@@ -26,6 +29,14 @@ typedef struct
     int in;
     struct request_info queue[10];
 } Q;
+
+void cleanup(int signal)
+{
+    int status;
+    waitpid(pid, &status, 0);
+    write(1, "cleanup!\n", 9);
+}
+
 void sighandler()
 {
     // destroy the shared memory
@@ -37,10 +48,12 @@ void my_handler() {}
 
 int main(int argc, char *argv[])
 {
+    again:
     printf("Server Program Started. Process id: %d\n", getpid());
     int curr = -1, i, servise;
     signal(SIGINT, sighandler);
     signal(SIGUSR1, my_handler);
+    signal(SIGCHLD, cleanup);
 
     int key;
     Q *infoItem;
@@ -89,7 +102,7 @@ int main(int argc, char *argv[])
             sprintf(buff6, "\n%d", (infoItem->queue[curr]).clientPID);
             sprintf(buff7, "\n%d", (infoItem->queue[curr]).result_ref_key);
 
-            int pid = fork();
+            pid = fork();
             if (pid == 0)
             {
                 if (servise == 2)
@@ -104,6 +117,11 @@ int main(int argc, char *argv[])
                 {
                     execl("./service3", "./service3", buff1, buff2, buff3, buff4, buff5, buff6, buff7, NULL);
                 }
+            }
+            else
+            {   /* I'm the parent! */
+                sleep(4); // so we can see the cleanup
+                goto again;
             }
         }
     }

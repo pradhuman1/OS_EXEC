@@ -2,9 +2,9 @@
 
 ## How to Run
 `cd OS_EXEC`
-`gcc server -o server.c`
+`gcc server.c -o server`
 `gcc client.c -o client`
-`gcc servise1.c -o servise1`
-`gcc servise2.c -o servise2`
-`gcc servise3.c -o servise3`
+`gcc service1.c -o service1`
+`gcc service2.c -o service2`
+`gcc service3.c -o service3`
 </br>

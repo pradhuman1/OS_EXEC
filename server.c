@@ -4,9 +4,11 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int shmid;
-
+pid_t pid;
 typedef struct
 {
     int res[5];
@@ -24,8 +26,9 @@ typedef struct
 {
     int serID;
     int in;
-    struct request_info queue[10];
+    struct request_info queue[100];
 } Q;
+
 void sighandler()
 {
     // destroy the shared memory
@@ -41,7 +44,6 @@ int main(int argc, char *argv[])
     int curr = -1, i, servise;
     signal(SIGINT, sighandler);
     signal(SIGUSR1, my_handler);
-
     int key;
     Q *infoItem;
     key = ftok("empty.txt", 11);
@@ -63,7 +65,6 @@ int main(int argc, char *argv[])
     while (1)
     {
         i = infoItem->in;
-
         if (curr < i)
         {
             curr++;
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
             sprintf(buff6, "\n%d", (infoItem->queue[curr]).clientPID);
             sprintf(buff7, "\n%d", (infoItem->queue[curr]).result_ref_key);
 
-            int pid = fork();
+            pid = fork();
             if (pid == 0)
             {
                 if (servise == 2)

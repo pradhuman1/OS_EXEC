@@ -21,7 +21,7 @@ typedef struct
 {
     int serID;
     int in;
-    struct request_info queue[10];
+    struct request_info queue[100];
 } Q;
 
 void my_handler() {}
@@ -34,13 +34,14 @@ int printOutput(result_buffer *item, int i)
     {
         printf("%d ", item->res[count]);
     }
+    printf("\n");
     return 0;
 }
 
 int main(int argc, char *argv[])
 {
     printf("Client Program Started. Process id: %d\n", getpid());
-    int choice, client, arr[5], shmid, i, curr;
+    int choice, client, arr[5], shmid, i, curr, shmid1;
     signal(SIGUSR1, my_handler);
     client = getpid();
     printf("Available Services : \n\n");
@@ -56,15 +57,15 @@ int main(int argc, char *argv[])
 
     int key1, key;
     key1 = ftok("empty.txt", 14);
-    shmid = shmget(key1, sizeof(result_buffer), IPC_CREAT | 0666);
-    shmctl(shmid, IPC_RMID, NULL);
-    shmid = shmget(key1, sizeof(result_buffer), IPC_CREAT | 0666);
+    shmid1 = shmget(key1, sizeof(result_buffer), IPC_CREAT | 0666);
+    shmctl(shmid1, IPC_RMID, NULL);
+    shmid1 = shmget(key1, sizeof(result_buffer), IPC_CREAT | 0666);
     if (shmid < 0)
     {
         perror("error1 result buffer: ");
         exit(1);
     }
-    output = (result_buffer *)shmat(shmid, NULL, 0);
+    output = (result_buffer *)shmat(shmid1, NULL, 0);
     if (output == (void *)-1)
     {
         perror("error 2 : ");
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
 
     Q *infoItem;
     key = ftok("empty.txt", 11);
+
     shmid = shmget(key, sizeof(Q), IPC_CREAT | 0666);
     if (shmid < 0)
     {
@@ -119,7 +121,8 @@ int main(int argc, char *argv[])
         else
         {
             printf("Sorry! Service not available.Try Again...\n");
-            continue;
+            shmctl(shmid1, IPC_RMID, NULL);
+            exit(0);
         }
         break;
         // kill(infoItem->serID, SIGUSR1);
@@ -128,8 +131,7 @@ int main(int argc, char *argv[])
     infoItem->in = curr;
     pause();
     printOutput(output, i);
-    shmdt(output);
-    shmctl(shmid, IPC_RMID, NULL);
+    shmctl(shmid1, IPC_RMID, NULL);
     printf("Exiting ...\n");
     return 0;
 }

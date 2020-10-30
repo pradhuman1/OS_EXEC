@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 	output->res[0] = ans;
-	printf("Client : %d\n", clientID);
 	kill(clientID, SIGUSR1);
 	return 0;
 }

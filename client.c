@@ -28,7 +28,6 @@ typedef struct
 
 void my_handler()
 {
-    printf("Signal Called\n");
 }
 
 int printOutput(result_buffer *item, int i)
@@ -77,7 +76,6 @@ int main(int argc, char *argv[])
     }
 
     (infoItem->tempIN)++;
-
     curr = infoItem->tempIN;
 
     result_buffer *output;
@@ -98,8 +96,6 @@ int main(int argc, char *argv[])
 
     //sharedMemory
 
-    (infoItem->queue[curr]).result_ref_key = key1;
-    (infoItem->queue[curr]).serviceNo = choice;
     (infoItem->queue[curr]).clientPID = client;
 
     if (choice == 1)
@@ -129,9 +125,10 @@ int main(int argc, char *argv[])
         shmctl(shmid1, IPC_RMID, NULL);
         exit(0);
     }
-    // kill(infoItem->serID, SIGUSR1);
+    (infoItem->queue[curr]).result_ref_key = key1;
+    (infoItem->queue[curr]).serviceNo = choice;
     printf("Getting Result... \n");
-    infoItem->in = curr;
+    infoItem->in = infoItem->tempIN;
     pause();
     printOutput(output, i);
     shmctl(shmid1, IPC_RMID, NULL);

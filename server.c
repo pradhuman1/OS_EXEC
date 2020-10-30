@@ -71,7 +71,11 @@ int main(int argc, char *argv[])
         {
             curr++;
             servise = (infoItem->queue[curr]).serviceNo;
-
+            if (servise != 1 && servise != 2 && servise != 3)
+            {
+                curr--;
+                continue;
+            }
             char buff1[40], buff2[40], buff3[40], buff4[40], buff5[40], buff6[40], buff7[40];
             sprintf(buff1, "\n%d", (infoItem->queue[curr]).neededArg[0]);
             sprintf(buff2, "\n%d", (infoItem->queue[curr]).neededArg[1]);

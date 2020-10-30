@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     signal(SIGUSR1, my_handler);
     client = getpid();
     printf("Available Services : \n\n");
-    printf("Service 1 : Shorting an integer array of 5 items\n");
+    printf("Service 1 : Sorting an integer array of 5 items\n");
     printf("Service 2 : Factorial of an integer\n");
     printf("Service 3 : Calculate the GCD (greatest common divisor) of two given integers\n");
     printf("\nWhich service do you want(1/2/3) :  \n");

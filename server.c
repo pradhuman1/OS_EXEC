@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <pthread.h>
 
 int shmid;
 pid_t pid;
@@ -24,14 +25,14 @@ struct request_info
 
 typedef struct
 {
-    int serID;
+    int lock;
+    int tempIN;
     int in;
     struct request_info queue[100];
 } Q;
 
 void sighandler()
 {
-    // destroy the shared memory
     shmctl(shmid, IPC_RMID, NULL);
     printf("\nExiting....\n");
     exit(0);
@@ -60,25 +61,15 @@ int main(int argc, char *argv[])
         perror("error 2 : ");
         exit(0);
     }
-    infoItem->serID = getpid();
     infoItem->in = -1;
+    infoItem->tempIN = -1;
+
     while (1)
     {
         i = infoItem->in;
         if (curr < i)
         {
             curr++;
-
-            // printf("SER : %d \n", (infoItem->queue[curr]).serviceNo);
-            // printf("client : %d\n", (infoItem->queue[curr]).clientPID);
-            // printf("H");
-
-            // printf("key : %d\n", (infoItem->queue[curr]).result_ref_key);
-
-            // for (int j = 0; j < 5; j++)
-            // {
-            //     printf("%d\n", (infoItem->queue[curr]).neededArg[j]);
-            // }
             servise = (infoItem->queue[curr]).serviceNo;
 
             char buff1[40], buff2[40], buff3[40], buff4[40], buff5[40], buff6[40], buff7[40];

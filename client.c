@@ -4,6 +4,7 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <unistd.h>
+#include <pthread.h>
 typedef struct
 {
     int res[5];
@@ -19,12 +20,16 @@ struct request_info
 
 typedef struct
 {
-    int serID;
+    int lock;
+    int tempIN;
     int in;
     struct request_info queue[100];
 } Q;
 
-void my_handler() {}
+void my_handler()
+{
+    printf("Signal Called\n");
+}
 
 int printOutput(result_buffer *item, int i)
 {
@@ -53,26 +58,7 @@ int main(int argc, char *argv[])
 
     //
 
-    result_buffer *output;
-
     int key1, key;
-    key1 = ftok("empty.txt", 14);
-    shmid1 = shmget(key1, sizeof(result_buffer), IPC_CREAT | 0666);
-    shmctl(shmid1, IPC_RMID, NULL);
-    shmid1 = shmget(key1, sizeof(result_buffer), IPC_CREAT | 0666);
-    if (shmid < 0)
-    {
-        perror("error1 result buffer: ");
-        exit(1);
-    }
-    output = (result_buffer *)shmat(shmid1, NULL, 0);
-    if (output == (void *)-1)
-    {
-        perror("error 2 : ");
-        exit(0);
-    }
-
-    //sharedMemory
 
     Q *infoItem;
     key = ftok("empty.txt", 11);
@@ -89,44 +75,61 @@ int main(int argc, char *argv[])
         perror("error 2 : ");
         exit(0);
     }
-    curr = infoItem->in;
-    curr++;
+
+    (infoItem->tempIN)++;
+
+    curr = infoItem->tempIN;
+
+    result_buffer *output;
+    key1 = ftok("empty.txt", curr);
+
+    shmid1 = shmget(key1, sizeof(result_buffer), IPC_CREAT | 0666);
+    if (shmid < 0)
+    {
+        perror("error1 result buffer: ");
+        exit(1);
+    }
+    output = (result_buffer *)shmat(shmid1, NULL, 0);
+    if (output == (void *)-1)
+    {
+        perror("error 2 : ");
+        exit(0);
+    }
+
+    //sharedMemory
+
     (infoItem->queue[curr]).result_ref_key = key1;
     (infoItem->queue[curr]).serviceNo = choice;
     (infoItem->queue[curr]).clientPID = client;
 
-    while (1)
+    if (choice == 1)
     {
-        if (choice == 1)
+        printf("Enter 5 integers : ");
+        for (i = 0; i < 5; i++)
         {
-            printf("Enter 5 integers : ");
-            for (i = 0; i < 5; i++)
-            {
-                scanf("%d", &(infoItem->queue[curr]).neededArg[i]);
-            }
+            scanf("%d", &(infoItem->queue[curr]).neededArg[i]);
         }
-        else if (choice == 2)
-        {
-            printf("Enter a integer : ");
-            scanf("%d", &(infoItem->queue[curr]).neededArg[0]);
-            i = 1;
-        }
-        else if (choice == 3)
-        {
-            printf("Enter two numbers : ");
-            scanf("%d", &(infoItem->queue[curr]).neededArg[0]);
-            scanf("%d", &(infoItem->queue[curr]).neededArg[1]);
-            i = 1;
-        }
-        else
-        {
-            printf("Sorry! Service not available.Try Again...\n");
-            shmctl(shmid1, IPC_RMID, NULL);
-            exit(0);
-        }
-        break;
-        // kill(infoItem->serID, SIGUSR1);
     }
+    else if (choice == 2)
+    {
+        printf("Enter a integer : ");
+        scanf("%d", &(infoItem->queue[curr]).neededArg[0]);
+        i = 1;
+    }
+    else if (choice == 3)
+    {
+        printf("Enter two numbers : ");
+        scanf("%d", &(infoItem->queue[curr]).neededArg[0]);
+        scanf("%d", &(infoItem->queue[curr]).neededArg[1]);
+        i = 1;
+    }
+    else
+    {
+        printf("Sorry! Service not available.Try Again...\n");
+        shmctl(shmid1, IPC_RMID, NULL);
+        exit(0);
+    }
+    // kill(infoItem->serID, SIGUSR1);
     printf("Getting Result... \n");
     infoItem->in = curr;
     pause();
